@@ -104,6 +104,20 @@ mqttServer.on("published",function(packet,client){
     let topicSplited = topic.split("/");
     let topicName = topicSplited[0];
     let arduinoId = topicSplited[1];
+    let data = packet.payload.toString();
+    let dataSplited = data.split("_");
+    let dataTime = dataSplited[0];
+    let dataValue = dataSplited[1];
+    if(topicName==="fire_value"){
+        let fireValue = {
+            deviceId: arduinoId,
+            value: dataValue,
+            time: dataTime
+        }
+        database.addFireValue(fireValue,function(result){
+            console.log(result.value);
+        });
+    }
 });
 
 //Xu li tin hieu socket

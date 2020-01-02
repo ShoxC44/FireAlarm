@@ -9,7 +9,7 @@ let option = {
     "pass": "123456a@"
 }
 
-const databaseConnection = mongoose.createConnection("mongodb://127.0.0.1:27017/iottest",option,function(err){
+const databaseConnection = mongoose.createConnection("mongodb://127.0.0.1:27017/firevalue",option,function(err){
     if(err) console.log("Can not connect to mongodb");
     else console.log("Connect Success");
 });
@@ -28,5 +28,26 @@ exports.findAccount = function(searchOption,callback){
     account.findOne(searchOption,function(err,result){
         if (err) return handleError(err);
         callback(result);
+    });
+}
+
+let fireValueSchema = new Schema({
+    deviceId: Schema.Types.String,
+    value: Schema.Types.Number,
+    time: Schema.Types.Date
+});
+
+let FireValue = databaseConnection.model('fire_value',fireValueSchema);
+
+exports.addFireValue = function(fireValue,callback){
+    let addFireValue = new FireValue({
+        deviceId: fireValue.deviceId,
+        value: fireValue.value,
+        time: fireValue.time
+    });
+    addFireValue.save(function(err,value){
+        if(err){
+            console.log(err);
+        }else callback(value);
     });
 }
