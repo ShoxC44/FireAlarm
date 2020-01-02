@@ -7,7 +7,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Home page IoT</title>
     <link href="pages/main/css/style.css" rel="stylesheet">
-    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.css' rel='stylesheet' />   
 </head>
 
 <body>
@@ -185,17 +187,53 @@
             <div class="container-fluid">
                 <div class="row page-titles">
                     <div class="col p-md-0">
-                        <h4>Home</h4>
+                        <h4>Graph</h4>
                     </div>
                     <div class="col p-md-0">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item active"><a href="javascript:void(0)">Home</a>
                             </li>
+                            <li class="breadcrumb-item active"><a href="javascript:void(0)">Graph</a>
+                            </li>
                         </ol>
                     </div>
                 </div>
                 <div class="row">
-                    
+                    <div class="card col-xl-6">
+                        <div class="card-body">
+                            <h4 class="card-title mb-4">List Device</h4>
+                            <div style="height:10px"></div>
+                            <div class="row">
+                                <button id="button_device_reload" class="btn btn-primary btn-form mr-2">Reload</button>
+                                <button id="button_device_test" class="btn btn-primary btn-form mr-2">Test</button>
+                                <button id="button_device_config" class="btn btn-primary btn-form mr-2">Config</button>
+                                <button id="button_device_add" class="btn btn-primary btn-form mr-2">+</button>
+                            </div>
+                            <div style="height:10px"></div>
+                            <div style="max-height: 600px;overflow-y: auto;width: 100%;">
+                                <table class= "table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Device Id</th>
+                                            <th>Location</th>
+                                            <th>Status</th>
+                                            <th>State</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table_device">
+    
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card col-xl-6">
+                        <div class="card-body">
+                            <div id="map_device" style="height: 500px; width: 100%;">
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -223,6 +261,10 @@
     <!--**********************************
         Scripts
     ***********************************-->
+    <script src="pages/js/graph_page.js"></script>
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA-pxvAWt2_teZA51Nhc8C_EsuMexRsGi0&callback=initMap">
+    </script>
     <script src="pages/assets/plugins/common/common.min.js"></script>
     <script src="pages/main/js/custom.min.js"></script>
     <script src="pages/main/js/settings.js"></script>

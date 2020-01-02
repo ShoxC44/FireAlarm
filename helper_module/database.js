@@ -56,7 +56,8 @@ let deviceSchema = new Schema({
     deviceId: Schema.Types.String,
     state: Schema.Types.Boolean,
     location: Schema.Types.String,
-    user: Schema.Types.ObjectId
+    user: Schema.Types.ObjectId,
+    hint: Schema.Types.String
 });
 
 let Device = databaseConnection.model('device',deviceSchema);

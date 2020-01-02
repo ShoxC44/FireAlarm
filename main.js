@@ -79,6 +79,12 @@ app.get("/home",function(req,res){
     };
 });
 
+app.get("/report_graph",function(req,res){
+    if(checkSignIn(req,res)){
+        res.render("pages/graph_page",{username:req.session.username});
+    };
+})
+
 app.get('/logout',function(req,res){
 	let user = req.session.user;
 	let name = req.session.username;
