@@ -210,12 +210,11 @@
                                 <button id="button_device_add" class="btn btn-primary btn-form mr-2">+</button>
                             </div>
                             <div style="height:10px"></div>
-                            <div style="max-height: 600px;overflow-y: auto;width: 100%;">
+                            <div style="height: 400px;overflow-y: auto;width: 100%;">
                                 <table class= "table table-hover">
                                     <thead>
                                         <tr>
                                             <th>Device Id</th>
-                                            <th>Location</th>
                                             <th>Status</th>
                                             <th>State</th>
                                         </tr>
@@ -230,8 +229,22 @@
                     <div class="card col-xl-6">
                         <div class="card-body">
                             <div id="map_device" style="height: 500px; width: 100%;">
-
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="card col-xl-12">
+                        <div class="card-body">
+                            <h4 class="card-title mb-4">Device</h4>
+                            <form method="post" action="device_form" id="device_form">
+                                <div class="form-group">
+                                    <label style="color:black">Id: <input type="text" class="form-control" id="device_id"></label>
+                                    <label style="color:black">Location: <input type="text" class="form-control" id="device_location"></label>
+                                    <label style="color:black">Note: <input type="text" class="form-control" id="device_hint"></label>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-form mr-2" id="btn_device_submit">Search</button>
+                            </form>
                         </div>
                     </div>
                 </div>

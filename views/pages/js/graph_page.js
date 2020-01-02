@@ -15,3 +15,14 @@ function initMap(){
 //     container: 'map_device',
 //     style: 'mapbox://styles/mapbox/streets-v11'
 // });
+
+let buttonDeviceReload = $("#button_device_reload");
+let buttonDeviceTest = $("#button_device_test");
+let buttonDeviceConfig = $("#button_device_config");
+let buttonDeviceAdd = $("#button_device_add");
+
+buttonDeviceAdd.on("click",function(event){
+    event.preventDefault();
+
+    
+});
