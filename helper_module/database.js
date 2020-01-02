@@ -9,7 +9,7 @@ let option = {
     "pass": "123456a@"
 }
 
-const databaseConnection = mongoose.createConnection("mongodb://127.0.0.1:27017/firevalue",option,function(err){
+const databaseConnection = mongoose.createConnection("mongodb://127.0.0.1:27017/firealarm",option,function(err){
     if(err) console.log("Can not connect to mongodb");
     else console.log("Connect Success");
 });
@@ -22,10 +22,10 @@ let accountSchema = new Schema({
     permission: Schema.Types.Number
 });
 
-let account = databaseConnection.model('account',accountSchema);
+let Account = databaseConnection.model('account',accountSchema);
 
 exports.findAccount = function(searchOption,callback){
-    account.findOne(searchOption,function(err,result){
+    Account.findOne(searchOption,function(err,result){
         if (err) return handleError(err);
         callback(result);
     });
@@ -46,6 +46,23 @@ exports.addFireValue = function(fireValue,callback){
         time: fireValue.time
     });
     addFireValue.save(function(err,value){
+        if(err){
+            console.log(err);
+        }else callback(value);
+    });
+}
+
+let deviceSchema = new Schema({
+    deviceId: Schema.Types.String,
+    state: Schema.Types.Boolean,
+    location: Schema.Types.String,
+    user: Schema.Types.ObjectId
+});
+
+let Device = databaseConnection.model('device',deviceSchema);
+
+exports.findDevice = function(searchOption,callback){
+    Device.find(searchOption,function(err,result){
         if(err){
             console.log(err);
         }else callback(value);

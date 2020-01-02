@@ -35,7 +35,8 @@ testAccount.save(function(err){
 let deviceSchema = new Schema({
     deviceId: Schema.Types.String,
     state: Schema.Types.Boolean,
-    location: Schema.Types.String
+    location: Schema.Types.String,
+    user: Schema.Types.ObjectId
 });
 
 let Device = databaseConnection.model('device',deviceSchema);

@@ -64,6 +64,8 @@ app.post("/login",function(req,res){
             req.session.user = true;
             req.session.username = result.name;
             req.session.state = result.state;
+            req.session.userId = result._id;
+            console.log(req.session);
             res.redirect("/home");
         }else{
             res.redirect("/");
