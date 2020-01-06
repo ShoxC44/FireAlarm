@@ -24,6 +24,8 @@ let accountSchema = new Schema({
 
 let Account = databaseConnection.model('account',accountSchema);
 
+exports.mongoose = mongoose;
+
 exports.findAccount = function(searchOption,callback){
     Account.findOne(searchOption,function(err,result){
         if (err) return handleError(err);
@@ -62,10 +64,35 @@ let deviceSchema = new Schema({
 
 let Device = databaseConnection.model('device',deviceSchema);
 
+exports.addDevice = function(userId,deviceData,callback){
+    let device = new Device({deviceId:deviceData.deviceId,
+                            state: false,
+                            location: deviceData.location,
+                            user: userId,
+                            hint: deviceData.hint});
+    device.save(function(err){
+        if(err){
+            console.log(err);
+            callback(false);
+            return handleError(err);
+        }else{
+            callback(true);
+        }
+    });
+}
+
 exports.findDevice = function(searchOption,callback){
     Device.find(searchOption,function(err,result){
         if(err){
             console.log(err);
-        }else callback(value);
+        }else callback(result);
+    });
+}
+
+exports.findDeviceByUserId = function(userId,callback){
+    Device.find({user: mongoose.Types.ObjectId(userId)},function(err,result){
+        if(err){
+            console.log(err);
+        }else callback(result);
     });
 }

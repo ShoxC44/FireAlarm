@@ -9,7 +9,8 @@
     <link href="pages/main/css/style.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src='https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js'></script>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.css' rel='stylesheet' />   
+    <link href='https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.css' rel='stylesheet' /> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.2/mqttws31.min.js" type="text/javascript"></script>  
 </head>
 
 <body>
@@ -236,14 +237,14 @@
                 <div class="row">
                     <div class="card col-xl-12">
                         <div class="card-body">
-                            <h4 class="card-title mb-4">Device</h4>
+                            <h4 class="card-title mb-4" id="label_device_detail">Device</h4>
                             <form method="post" action="device_form" id="device_form">
                                 <div class="form-group">
-                                    <label style="color:black">Id: <input type="text" class="form-control" id="device_id"></label>
-                                    <label style="color:black">Location: <input type="text" class="form-control" id="device_location"></label>
-                                    <label style="color:black">Note: <input type="text" class="form-control" id="device_hint"></label>
+                                    <div><label style="color:black">Id: <input style="width: 600px;" type="text" class="form-control" id="device_id"></label></div>
+                                    <div><label style="color:black">Location: <input style="width: 600px;" type="text" class="form-control" id="device_location"></label></div>
+                                    <div><label style="color:black">Hint: <input style="width: 600px;" type="text" class="form-control" id="device_hint"></label></div>
                                 </div>
-                                <button type="submit" class="btn btn-primary btn-form mr-2" id="btn_device_submit">Search</button>
+                                <button type="submit" class="btn btn-primary btn-form mr-2" id="btn_device_submit">Submit</button>
                             </form>
                         </div>
                     </div>

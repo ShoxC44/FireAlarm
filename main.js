@@ -21,6 +21,8 @@ const moscaSettings = {
     bundle: true,
     static: './'
 }
+const mqttServer = new mosca.Server(moscaSettings);
+mqttServer.attachHttpServer(server);
 
 //Khoi tao session
 const session = require("express-session")({
@@ -32,15 +34,12 @@ const session = require("express-session")({
 app.use(session);
 
 //Khoi tao socket.io
-const iosession = require("express-socket.io-session");
+// const iosession = require("express-socket.io-session");
 
-const io = require('socket.io')(server);
-io.use(iosession(session,{
-	autoSave:true
-}));
-
-const mqttServer = new mosca.Server(moscaSettings);
-// mqttServer.attachHttpServer(server);
+// const io = require('socket.io')(server);
+// io.use(iosession(session,{
+// 	autoSave:true
+// }));
 
 //Khoi tao view engine thanh ejs
 const ejs = require("ejs");
@@ -85,7 +84,7 @@ app.get("/report_graph",function(req,res){
     };
 })
 
-app.get('/logout',function(req,res){
+app.get("/logout",function(req,res){
 	let user = req.session.user;
 	let name = req.session.username;
 	req.session.destroy(function(err){
@@ -98,6 +97,38 @@ app.get('/logout',function(req,res){
 	});
 });
 
+//Xu li API call
+app.post("/request_mqtt_token",function(req,res){
+    if(checkSignIn(req,res)){
+        res.status(200);
+        return res.send("Hello");
+    };
+});
+
+app.post("/add_device",function(req,res){
+    let newDevice = {
+        deviceId: req.body.id,
+        location: req.body.location,
+        hint: req.body.hint
+    }
+    database.addDevice(req.session.userId,newDevice,function(result){
+        if(result){
+            res.status(200);
+            return res.send("Add Device Successful");
+        }else{
+            res.status(200);
+            return res.send("Add Device Failed");
+        }
+    })
+});
+
+app.post("/find_device",function(req,res){
+    database.findDeviceByUserId(req.session.userId,function(result){
+        res.status(200);
+            return res.send(result);
+    });
+});
+
 //Phuc vu thu vien
 // app.get("iot_config_page.js",function(req,res){
 //     if(checkSignIn(req,res)){
@@ -106,7 +137,7 @@ app.get('/logout',function(req,res){
 // });
 
 mqttServer.on("published",function(packet,client){
-    console.log(packet.topic.toString());
+    console.log(packet);
     console.log(packet.payload.toString());
     let topic = packet.topic.toString();
     let topicSplited = topic.split("/");
@@ -129,13 +160,13 @@ mqttServer.on("published",function(packet,client){
 });
 
 //Xu li tin hieu socket
-io.on("connection",function(socket){
-    let socketSession = socket.handshake.session;
-    let user = socketSession.user;
-    if(!user){
-        socket.disconnect();
-    }
-});
+// io.on("connection",function(socket){
+//     let socketSession = socket.handshake.session;
+//     let user = socketSession.user;
+//     if(!user){
+//         socket.disconnect();
+//     }
+// });
 
 //Các hàm khi kết thúc chương trình
 process.on("SIGTERM", function () {
