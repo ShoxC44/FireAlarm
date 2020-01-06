@@ -168,7 +168,7 @@ function startConnect() {
     let clientID = "clientID-" + parseInt(Math.random() * 100);
 
     // Initialize new Paho mqttClient connection
-    mqttClient = new Paho.MQTT.Client("127.0.0.1", Number("3030"), clientID);
+    mqttClient = new Paho.MQTT.Client("202.191.58.47", Number("3030"), clientID);
 
     // Set callback handlers
     mqttClient.onConnectionLost = onConnectionLost;
