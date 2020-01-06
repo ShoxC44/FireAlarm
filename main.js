@@ -135,7 +135,11 @@ app.post("/find_device",function(req,res){
 
 app.post("/test_device",function(req,res){
     if(checkSignIn){
-        
+        let testDeviceId = req.body.deviceId;
+        database.findDeviceByDeviceId(testDeviceId,function(result){
+            res.status(200);
+            return res.send(result.state);
+        })
     }
 });
 
@@ -152,20 +156,36 @@ mqttServer.on("published",function(packet,client){
     let topic = packet.topic.toString();
     let topicSplited = topic.split("/");
     let topicName = topicSplited[0];
-    let arduinoId = topicSplited[1];
+    let deviceId = topicSplited[1];
     let data = packet.payload.toString();
-    let dataSplited = data.split("_");
-    let dataTime = dataSplited[0];
-    let dataValue = dataSplited[1];
     if(topicName==="fire_value"){
+        let dataSplited = data.split("_");
+        let dataTime = dataSplited[0];
+        let dataValue = dataSplited[1];
         let fireValue = {
-            deviceId: arduinoId,
+            deviceId: deviceId,
             value: dataValue,
             time: dataTime
         }
         database.addFireValue(fireValue,function(result){
             console.log(result.value);
         });
+    }else if(topicName==="connectionDevice"){
+        if(data==='0'){
+            database.findDeviceByDeviceId(deviceId,function(result){
+                console.log(result[0]);
+                let device = result[0];
+                device.state = false;
+                device.save();
+            });
+        }else if(data==='1'){
+            database.findDeviceByDeviceId(deviceId,function(result){
+                console.log(result[0]);
+                let device = result[0];
+                device.state = true;
+                device.save();
+            });
+        }
     }
 });
 

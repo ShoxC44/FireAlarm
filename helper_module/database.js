@@ -102,3 +102,11 @@ exports.findDeviceByUserId = function(userId,callback){
         }else callback(result);
     });
 }
+
+exports.findDeviceByDeviceId = function(deviceId,callback){
+    Device.find({_id: mongoose.Types.ObjectId(deviceId)},function(err,result){
+        if(err){
+            console.log(err);
+        }else callback(result);
+    });
+}
