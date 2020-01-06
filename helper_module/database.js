@@ -11,7 +11,7 @@ let option = {
 
 const databaseConnection = mongoose.createConnection("mongodb://127.0.0.1:27017/firealarm",option,function(err){
     if(err) console.log("Can not connect to mongodb");
-    else console.log("Connect Success");
+    else console.log("Connect MongoDB Success");
 });
 const Schema = mongoose.Schema;
 
@@ -29,7 +29,9 @@ exports.mongoose = mongoose;
 exports.findAccount = function(searchOption,callback){
     Account.findOne(searchOption,function(err,result){
         if (err) return handleError(err);
-        callback(result);
+        else{
+            callback(result);
+        }
     });
 }
 
@@ -59,7 +61,9 @@ let deviceSchema = new Schema({
     state: Schema.Types.Boolean,
     location: Schema.Types.String,
     user: Schema.Types.ObjectId,
-    hint: Schema.Types.String
+    hint: Schema.Types.String,
+    lat: Schema.Types.Number,
+    lon: Schema.Types.Number
 });
 
 let Device = databaseConnection.model('device',deviceSchema);
@@ -69,7 +73,9 @@ exports.addDevice = function(userId,deviceData,callback){
                             state: false,
                             location: deviceData.location,
                             user: userId,
-                            hint: deviceData.hint});
+                            hint: deviceData.hint,
+                            lat: deviceData.lat,
+                            lon: deviceData.lon});
     device.save(function(err){
         if(err){
             console.log(err);

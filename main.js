@@ -106,27 +106,37 @@ app.post("/request_mqtt_token",function(req,res){
 });
 
 app.post("/add_device",function(req,res){
-    let newDevice = {
-        deviceId: req.body.id,
-        location: req.body.location,
-        hint: req.body.hint
-    }
-    database.addDevice(req.session.userId,newDevice,function(result){
-        if(result){
-            res.status(200);
-            return res.send("Add Device Successful");
-        }else{
-            res.status(200);
-            return res.send("Add Device Failed");
+    if(checkSignIn){
+        let newDevice = {
+            deviceId: req.body.id,
+            location: req.body.location,
+            hint: req.body.hint
         }
-    })
+        database.addDevice(req.session.userId,newDevice,function(result){
+            if(result){
+                res.status(200);
+                return res.send("Add Device Successful");
+            }else{
+                res.status(200);
+                return res.send("Add Device Failed");
+            }
+        });
+    }
 });
 
 app.post("/find_device",function(req,res){
-    database.findDeviceByUserId(req.session.userId,function(result){
-        res.status(200);
-            return res.send(result);
-    });
+    if(checkSignIn){
+        database.findDeviceByUserId(req.session.userId,function(result){
+            res.status(200);
+                return res.send(result);
+        });
+    }
+});
+
+app.post("/test_device",function(req,res){
+    if(checkSignIn){
+        
+    }
 });
 
 //Phuc vu thu vien

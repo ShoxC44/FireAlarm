@@ -1,8 +1,9 @@
 let mapDevice = $("#map_device");
 let mqttClient = "";
+let deviceData = [];
+let choosenDeviceId = "";
 
 $().ready(function() {
-    console.log( "ready!" );
     $.ajax({
         url: 'request_mqtt_token',
         type: 'POST',
@@ -40,9 +41,11 @@ let buttonDeviceAdd = $("#button_device_add");
 let labelDeviceDetail = $("#label_device_detail");
 let tableDevice = $("#table_device");
 let buttonSubmitDeviceForm = $("#btn_device_submit");
-let deviceLocation = $("#device_location");
-let deviceId = $("#device_id");
-let deviceHint = $("#device_hint");
+let textviewDeviceLocation = $("#device_location");
+let textviewDeviceId = $("#device_id");
+let textviewDeviceHint = $("#device_hint");
+let textviewDeviceLat = $("#device_lat");
+let textviewDeviceLon = $("#device_lon");
 let formState = "None";
 
 buttonDeviceAdd.on("click",function(event){
@@ -72,9 +75,10 @@ buttonDeviceReload.on("click",function(event){
         data: searchData,
         success: function (data) {
             tableDevice.empty();
-            console.log(data);
+            deviceData = data;
+            console.log(deviceData);
             data.forEach(device => {
-                tableDevice.append("<tr onclick=\"chooseDevice(this.id)\" id=\""+device._id+"\"><td>"+device.deviceId+"</td><td>"+device.state+"</td><td></td></tr>")
+                tableDevice.append("<tr onclick=\"chooseDevice(this.id)\" id=\""+device._id+"\"><td>"+device._id+"</td><td>"+device.state+"</td><td></td></tr>")
             });
         },
         error: function (e) {
@@ -86,7 +90,36 @@ buttonDeviceReload.on("click",function(event){
 function chooseDevice(deviceId){
     console.log("Click");
     console.log(deviceId);
+    choosenDeviceId = deviceId;
+    deviceData.forEach(device => {
+        if(device._id === deviceId){
+            textviewDeviceId.val(deviceId);
+            textviewDeviceLocation.val(device.location);
+            textviewDeviceHint.val(device.hint);
+        }
+    });
 }
+
+buttonDeviceTest.on("click",function(event){
+    event.preventDefault();
+    console.log("Button Test clicked");
+    formState = "None";
+    if(choosenDeviceId!=""){
+        $.ajax({
+            url: 'test_device',
+            type: 'POST',
+            data: {deviceId: choosenDeviceId},
+            success: function (data) {
+                console.log(data);
+            },
+            error: function (e) {
+                console.log(e.message);
+            }
+        });
+    }else{
+        alert("Choose one device to test");
+    }
+});
 
 buttonSubmitDeviceForm.on("click",function(event){
     event.preventDefault();
@@ -94,9 +127,11 @@ buttonSubmitDeviceForm.on("click",function(event){
         alert("Choose a funtion for submitted form");
     }else if(formState==="Add"){
         let deviceData = {
-            id: deviceId.val(),
-            location: deviceLocation.val(),
-            hint: deviceHint.val()
+            id: textviewDeviceId.val(),
+            location: textviewDeviceLocation.val(),
+            hint: textviewDeviceHint.val(),
+            lat: textviewDeviceLat.val(),
+            lon: textviewDeviceLon.val()
         } 
         console.log(deviceData);
         $.ajax({
