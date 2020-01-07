@@ -19,7 +19,8 @@ client.on('connect', function (err) {
 	client.publish('connectionDevice/' + deviceId,'1');
 	client.subscribe("configurationDevice/" + deviceId + "/request");
     setInterval(function() {
-    client.publish('fireValue/' + deviceId, '0');
+	let value = getRandomInt(3);
+    client.publish('fireValue/' + deviceId, value+"");
     }, 5000);
 });
 
@@ -40,3 +41,7 @@ client.on('message',function(topic,message){
 		}
 	}
 });
+
+function getRandomInt(max) {
+	return Math.floor(Math.random() * Math.floor(max));
+  }
