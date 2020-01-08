@@ -53,8 +53,8 @@ let formState = "None";
 buttonDeviceAdd.on("click",function(event){
     event.preventDefault();
     console.log("Button Add clicked");
-    labelDeviceDetail.html("Add Device");
-    buttonSubmitDeviceForm.html("Add");
+    labelDeviceDetail.html("Pair Device");
+    buttonSubmitDeviceForm.html("Pair");
     formState = "Add";
 });
 
@@ -73,7 +73,7 @@ buttonDeviceReload.on("click",function(event){
     formState = "None";
     let searchData = {};
     $.ajax({
-        url: 'find_device',
+        url: 'find_all_device',
         type: 'POST',
         data: searchData,
         success: function (data) {
@@ -95,11 +95,22 @@ function chooseDevice(deviceId){
     console.log("Click");
     console.log(deviceId);
     choosenDeviceId = deviceId;
-    deviceData.forEach(device => {
-        if(device.deviceId === deviceId){
-            textviewDeviceId.val(deviceId);
-            textviewDeviceLocation.val(device.location);
-            textviewDeviceNote.val(device.note);
+    $.ajax({
+        url: 'find_device',
+        type: 'POST',
+        data: {deviceId: deviceId},
+        success: function (device) {
+            console.log(device);
+            if(device[0]!=undefined){
+                textviewDeviceId.val(deviceId);
+                textviewDeviceLocation.val(device[0].location);
+                textviewDeviceNote.val(device[0].note);
+            }else{
+               alert("Device not exist in database");
+            }
+        },
+        error: function (e) {
+            console.log(e.message);
         }
     });
 }

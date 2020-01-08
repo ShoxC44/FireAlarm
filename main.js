@@ -108,7 +108,6 @@ app.post("/request_mqtt_token",function(req,res){
 app.post("/add_device",function(req,res){
     if(checkSignIn){
         let deviceId = req.body.deviceId;
-        console.log(deviceId);
         database.findDeviceByDeviceId(deviceId,function(result){
             if(result[0]!=undefined){
                 let device = result[0];
@@ -120,7 +119,7 @@ app.post("/add_device",function(req,res){
                     device.lon = req.body.lon;
                 }
                 if(req.body.note){
-                    device.note = device.note;
+                    device.note = req.body.note;
                 }
                 device.save(function(err,device){
                     if(err) console.log(err);
@@ -134,9 +133,18 @@ app.post("/add_device",function(req,res){
     }
 });
 
-app.post("/find_device",function(req,res){
+app.post("/find_all_device",function(req,res){
     if(checkSignIn){
         database.findDevice({},function(result){
+            res.status(200);
+                return res.send(result);
+        });
+    }
+});
+
+app.post("/find_device",function(req,res){
+    if(checkSignIn){
+        database.findDevice(req.body,function(result){
             res.status(200);
                 return res.send(result);
         });
