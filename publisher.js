@@ -1,7 +1,11 @@
-var mqtt = require('mqtt');
-var deviceId = "5e13499b3595da0d87d57d7c";
+let mqtt = require('mqtt');
+let deviceId = "fc20d287-0340-49af-983c-decd4d040f3d";
+let deviceLocation = "Tòa C3C khu đô thị B";
+let deviceLat = "21.027";
+let deviceLon = "105.83";
+
 // var client  = mqtt.connect('ws://52.163.202.13/mqtt/');
-var client  = mqtt.connect('mqtt://202.191.58.47:1883',{will: {
+var client  = mqtt.connect('mqtt://localhost:1883',{will: {
 	topic: 'connectionDevice/' + deviceId,
 	payload: '0',
 	qos: 1,
@@ -16,7 +20,7 @@ var client  = mqtt.connect('mqtt://202.191.58.47:1883',{will: {
 client.on('connect', function (err) {
 	console.log(err);
 	console.log("Connected to Broker");
-	client.publish('connectionDevice/' + deviceId,'1');
+	client.publish('connectionDevice/' + deviceId,'1:'+deviceLocation+":"+deviceLat+":"+deviceLon);
 	client.subscribe("configurationDevice/" + deviceId + "/request");
     setInterval(function() {
 	let value = getRandomInt(3);

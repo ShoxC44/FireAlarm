@@ -36,8 +36,7 @@ let deviceSchema = new Schema({
     deviceId: Schema.Types.String,
     state: Schema.Types.Boolean,
     location: Schema.Types.String,
-    user: Schema.Types.ObjectId,
-    hint: Schema.Types.String,
+    note: Schema.Types.String,
     lat: Schema.Types.Number,
     lon: Schema.Types.Number
 });
@@ -54,7 +53,8 @@ let Device = databaseConnection.model('device',deviceSchema);
 let fireValueSchema = new Schema({
     deviceId: Schema.Types.String,
     value: Schema.Types.Number,
-    time: Schema.Types.Date
+    time: Schema.Types.Date,
+    detail: Schema.Types.String
 });
 
 let FireValue = databaseConnection.model('fire_value',fireValueSchema);

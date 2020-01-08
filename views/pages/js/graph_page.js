@@ -45,7 +45,7 @@ let buttonSubmitDeviceForm = $("#btn_device_submit");
 let buttonGetDeviceLocation = $("#btn_device_reloadLocation");
 let textviewDeviceLocation = $("#device_location");
 let textviewDeviceId = $("#device_id");
-let textviewDeviceHint = $("#device_hint");
+let textviewDeviceNote = $("#device_note");
 let textviewDeviceLat = $("#device_lat");
 let textviewDeviceLon = $("#device_lon");
 let formState = "None";
@@ -69,6 +69,7 @@ buttonDeviceConfig.on("click",function(event){
 buttonDeviceReload.on("click",function(event){
     event.preventDefault();
     console.log("Button Reload clicked");
+    mqttClient.unsubscribe("fireValue/#");
     formState = "None";
     let searchData = {};
     $.ajax({
@@ -80,8 +81,8 @@ buttonDeviceReload.on("click",function(event){
             deviceData = data;
             console.log(deviceData);
             data.forEach(device => {
-                mqttClient.subscribe("fireValue/"+device._id);
-                tableDevice.append("<tr onclick=\"chooseDevice(this.id)\" id=\""+device._id+"\"><td>"+device._id+"</td><td>"+device.state+"</td><td id=\"fireValue_"+device._id+"\"></td></tr>")
+                mqttClient.subscribe("fireValue/"+device.deviceId);
+                tableDevice.append("<tr onclick=\"chooseDevice(this.id)\" id=\""+device.deviceId+"\"><td>"+device.deviceId+"</td><td>"+device.state+"</td><td id=\"fireValue_"+device.deviceId+"\"></td></tr>")
             });
         },
         error: function (e) {
@@ -95,10 +96,10 @@ function chooseDevice(deviceId){
     console.log(deviceId);
     choosenDeviceId = deviceId;
     deviceData.forEach(device => {
-        if(device._id === deviceId){
+        if(device.deviceId === deviceId){
             textviewDeviceId.val(deviceId);
             textviewDeviceLocation.val(device.location);
-            textviewDeviceHint.val(device.hint);
+            textviewDeviceNote.val(device.note);
         }
     });
 }
@@ -134,13 +135,11 @@ buttonSubmitDeviceForm.on("click",function(event){
         alert("Choose a funtion for submitted form");
     }else if(formState==="Add"){
         let deviceData = {
-            id: textviewDeviceId.val(),
-            location: textviewDeviceLocation.val(),
-            hint: textviewDeviceHint.val(),
+            deviceId: textviewDeviceId.val(),
+            note: textviewDeviceNote.val(),
             lat: textviewDeviceLat.val(),
             lon: textviewDeviceLon.val()
-        } 
-        console.log(deviceData);
+        }
         $.ajax({
             url: 'add_device',
             type: 'POST',
@@ -168,7 +167,7 @@ function startConnect() {
     let clientID = "clientID-" + parseInt(Math.random() * 100);
 
     // Initialize new Paho mqttClient connection
-    mqttClient = new Paho.MQTT.Client("202.191.58.47", Number("3030"), clientID);
+    mqttClient = new Paho.MQTT.Client("127.0.0.1", Number("3030"), clientID);
 
     // Set callback handlers
     mqttClient.onConnectionLost = onConnectionLost;

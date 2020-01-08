@@ -38,7 +38,8 @@ exports.findAccount = function(searchOption,callback){
 let fireValueSchema = new Schema({
     deviceId: Schema.Types.String,
     value: Schema.Types.Number,
-    time: Schema.Types.Date
+    time: Schema.Types.Date,
+    detail: Schema.Types.String
 });
 
 let FireValue = databaseConnection.model('fire_value',fireValueSchema);
@@ -60,22 +61,22 @@ let deviceSchema = new Schema({
     deviceId: Schema.Types.String,
     state: Schema.Types.Boolean,
     location: Schema.Types.String,
-    user: Schema.Types.ObjectId,
-    hint: Schema.Types.String,
+    note: Schema.Types.String,
     lat: Schema.Types.Number,
-    lon: Schema.Types.Number
+    lon: Schema.Types.Number,
+    pair: Schema.Types.Boolean
 });
 
 let Device = databaseConnection.model('device',deviceSchema);
 
-exports.addDevice = function(userId,deviceData,callback){
+exports.addDevice = function(deviceData,callback){
     let device = new Device({deviceId:deviceData.deviceId,
-                            state: false,
+                            state: deviceData.state,
                             location: deviceData.location,
-                            user: userId,
-                            hint: deviceData.hint,
+                            note: deviceData.note,
                             lat: deviceData.lat,
-                            lon: deviceData.lon});
+                            lon: deviceData.lon,
+                            pair: deviceData.pair});
     device.save(function(err){
         if(err){
             console.log(err);
@@ -95,15 +96,23 @@ exports.findDevice = function(searchOption,callback){
     });
 }
 
-exports.findDeviceByUserId = function(userId,callback){
-    Device.find({user: mongoose.Types.ObjectId(userId)},function(err,result){
+// exports.findDeviceByUserId = function(userId,callback){
+//     Device.find({user: mongoose.Types.ObjectId(userId)},function(err,result){
+//         if(err){
+//             console.log(err);
+//         }else callback(result);
+//     });
+// }
+
+exports.findDeviceByDeviceId = function(deviceId,callback){
+    Device.find({deviceId: deviceId},function(err,result){
         if(err){
             console.log(err);
         }else callback(result);
     });
 }
 
-exports.findDeviceByDeviceId = function(deviceId,callback){
+exports.findDeviceByMongoId = function(deviceId,callback){
     Device.find({_id: mongoose.Types.ObjectId(deviceId)},function(err,result){
         if(err){
             console.log(err);

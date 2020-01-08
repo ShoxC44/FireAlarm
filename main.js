@@ -107,26 +107,36 @@ app.post("/request_mqtt_token",function(req,res){
 
 app.post("/add_device",function(req,res){
     if(checkSignIn){
-        let newDevice = {
-            deviceId: req.body.id,
-            location: req.body.location,
-            hint: req.body.hint
-        }
-        database.addDevice(req.session.userId,newDevice,function(result){
-            if(result){
-                res.status(200);
-                return res.send("Add Device Successful");
-            }else{
-                res.status(200);
-                return res.send("Add Device Failed");
+        let deviceId = req.body.deviceId;
+        console.log(deviceId);
+        database.findDeviceByDeviceId(deviceId,function(result){
+            if(result[0]!=undefined){
+                let device = result[0];
+                device.pair = true;
+                if(req.body.lat){
+                    device.lat = req.body.lat;
+                }
+                if(req.body.lon){
+                    device.lon = req.body.lon;
+                }
+                if(req.body.note){
+                    device.note = device.note;
+                }
+                device.save(function(err,device){
+                    if(err) console.log(err);
+                    else {
+                        res.status(200);
+                        res.send("Pair Success");
+                    }
+                });
             }
-        });
+        })
     }
 });
 
 app.post("/find_device",function(req,res){
     if(checkSignIn){
-        database.findDeviceByUserId(req.session.userId,function(result){
+        database.findDevice({},function(result){
             res.status(200);
                 return res.send(result);
         });
@@ -151,8 +161,6 @@ app.post("/test_device",function(req,res){
 // });
 
 mqttServer.on("published",function(packet,client){
-    console.log(packet);
-    console.log(packet.payload.toString());
     let topic = packet.topic.toString();
     let topicSplited = topic.split("/");
     let topicName = topicSplited[0];
@@ -171,19 +179,42 @@ mqttServer.on("published",function(packet,client){
             console.log(result.value);
         });
     }else if(topicName==="connectionDevice"){
-        if(data==='0'){
+        if(data.charAt(0)==='0'){
             database.findDeviceByDeviceId(deviceId,function(result){
-                console.log(result[0]);
-                let device = result[0];
-                device.state = false;
-                device.save();
+                if(result[0]!=undefined){
+                    console.log(result[0]);
+                    let device = result[0];
+                    device.state = false;
+                    device.save();
+                }else{
+                    console.log("No device with id: " + deviceId);
+                }
             });
-        }else if(data==='1'){
+        }else if(data.charAt(0)==='1'){
             database.findDeviceByDeviceId(deviceId,function(result){
-                console.log(result[0]);
-                let device = result[0];
-                device.state = true;
-                device.save();
+                if(result[0]!=undefined){
+                    console.log(result[0]);
+                        let device = result[0];
+                        device.state = true;
+                        device.save();
+                }else{
+                    let deviceData = data.split(":");
+                    let deviceLocation = deviceData[1];
+                    let deviceLat = deviceData[2];
+                    let deviceLon = deviceData[3];
+                    let newDevice = {
+                        deviceId: deviceId,
+                        state: true,
+                        location: deviceLocation,
+                        note: "",
+                        lat: deviceLat,
+                        lon: deviceLon,
+                        pair:false
+                    }
+                    database.addDevice(newDevice,function(result){
+                        if(result) console.log("Device "+deviceId+" added");
+                    });
+                }
             });
         }
     }
