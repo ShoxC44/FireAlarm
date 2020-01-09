@@ -24,7 +24,8 @@ client.on('connect', function (err) {
 	client.subscribe("configurationDevice/" + deviceId + "/request");
     setInterval(function() {
 	let value = getRandomInt(3);
-    client.publish('fireValue/' + deviceId, value+"");
+	let time = Date.now();
+    client.publish('fireValue/' + deviceId, time+"_"+value);
     }, 5000);
 });
 

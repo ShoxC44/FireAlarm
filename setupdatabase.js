@@ -38,7 +38,9 @@ let deviceSchema = new Schema({
     location: Schema.Types.String,
     note: Schema.Types.String,
     lat: Schema.Types.Number,
-    lon: Schema.Types.Number
+    lon: Schema.Types.Number,
+    pair: Schema.Types.Boolean,
+    status: Schema.Types.Number
 });
 
 let Device = databaseConnection.model('device',deviceSchema);

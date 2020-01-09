@@ -48,12 +48,17 @@ exports.addFireValue = function(fireValue,callback){
     let addFireValue = new FireValue({
         deviceId: fireValue.deviceId,
         value: fireValue.value,
-        time: fireValue.time
+        time: fireValue.time,
+        detail: fireValue.detail
     });
     addFireValue.save(function(err,value){
         if(err){
             console.log(err);
-        }else callback(value);
+            callback(false);
+            return handleError(err);
+        }else {
+            callback(true);
+        }
     });
 }
 
@@ -64,7 +69,8 @@ let deviceSchema = new Schema({
     note: Schema.Types.String,
     lat: Schema.Types.Number,
     lon: Schema.Types.Number,
-    pair: Schema.Types.Boolean
+    pair: Schema.Types.Boolean,
+    status: Schema.Types.Number
 });
 
 let Device = databaseConnection.model('device',deviceSchema);
@@ -76,7 +82,8 @@ exports.addDevice = function(deviceData,callback){
                             note: deviceData.note,
                             lat: deviceData.lat,
                             lon: deviceData.lon,
-                            pair: deviceData.pair});
+                            pair: deviceData.pair,
+                            status: deviceData.status});
     device.save(function(err){
         if(err){
             console.log(err);

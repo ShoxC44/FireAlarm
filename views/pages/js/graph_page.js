@@ -205,4 +205,8 @@ function startConnect() {
             }
         }
     });
+    mqttClient.on("close",function(){
+        console.log("Disconnect with broker");
+        alert("Disconnect from Broker, reload page");
+    })
 }

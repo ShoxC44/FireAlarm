@@ -173,18 +173,37 @@ mqttServer.on("published",function(packet,client){
     let topicName = topicSplited[0];
     let deviceId = topicSplited[1];
     let data = packet.payload.toString();
-    if(topicName==="fire_value"){
+    if(topicName==="fireValue"){
         let dataSplited = data.split("_");
+        console.log(dataSplited);
         let dataTime = dataSplited[0];
         let dataValue = dataSplited[1];
         let fireValue = {
             deviceId: deviceId,
             value: dataValue,
-            time: dataTime
+            time: dataTime,
+            detail: "Alert"
         }
-        database.addFireValue(fireValue,function(result){
-            
-        });
+        console.log(dataValue);
+        if(dataValue>0){
+            database.addFireValue(fireValue,function(result){
+                if(result){
+                    database.findDeviceByDeviceId(deviceId,function(device){
+                        if(device[0]!=undefined){
+                            device[0].status = dataValue;
+                            device[0].save();
+                        }
+                    })
+                }
+            });
+        }else if(dataValue==0){
+            database.findDeviceByDeviceId(deviceId,function(device){
+                if(device[0]!=undefined){
+                    device[0].status = dataValue;
+                    device[0].save();
+                }
+            })
+        }
     }else if(topicName==="connectionDevice"){
         if(data.charAt(0)==='0'){
             database.findDeviceByDeviceId(deviceId,function(result){
@@ -214,7 +233,8 @@ mqttServer.on("published",function(packet,client){
                         note: "",
                         lat: deviceLat,
                         lon: deviceLon,
-                        pair:false
+                        pair:false,
+                        status: 0
                     }
                     database.addDevice(newDevice,function(result){
                         if(result) console.log("Device "+deviceId+" added");
