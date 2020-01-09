@@ -5,7 +5,7 @@ const app = express();
 app.use(express.static("views"));
 app.use(express.static("support_libraries"));
 
-// //Khoi tao server
+//Khoi tao server
 const server = app.listen(3030,function(){
 	let port = server.address().port;
 	console.log("Server running at port "+port);
