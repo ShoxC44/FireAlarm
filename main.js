@@ -64,7 +64,6 @@ app.post("/login",function(req,res){
             req.session.username = result.name;
             req.session.state = result.state;
             req.session.userId = result._id;
-            console.log(req.session);
             res.redirect("/home");
         }else{
             res.redirect("/");
@@ -184,13 +183,12 @@ mqttServer.on("published",function(packet,client){
             time: dataTime
         }
         database.addFireValue(fireValue,function(result){
-            console.log(result.value);
+            
         });
     }else if(topicName==="connectionDevice"){
         if(data.charAt(0)==='0'){
             database.findDeviceByDeviceId(deviceId,function(result){
                 if(result[0]!=undefined){
-                    console.log(result[0]);
                     let device = result[0];
                     device.state = false;
                     device.save();
@@ -201,10 +199,9 @@ mqttServer.on("published",function(packet,client){
         }else if(data.charAt(0)==='1'){
             database.findDeviceByDeviceId(deviceId,function(result){
                 if(result[0]!=undefined){
-                    console.log(result[0]);
-                        let device = result[0];
-                        device.state = true;
-                        device.save();
+                    let device = result[0];
+                    device.state = true;
+                    device.save();
                 }else{
                     let deviceData = data.split(":");
                     let deviceLocation = deviceData[1];

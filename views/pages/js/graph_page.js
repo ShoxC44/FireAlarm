@@ -4,6 +4,7 @@ let deviceData = [];
 let choosenDeviceId = "";
 
 const REQUEST_COORDINATION_CODE = "1";
+let subscribeTopic = [];
 
 $().ready(function() {
     $.ajax({
@@ -22,18 +23,10 @@ $().ready(function() {
 
 let map = "";
 function initMap(){
-    var hanoi = {lat: 21.027, lng: 105.83};
-    // The map, centered at Uluru
+    let hanoi = {lat: 21.027, lng: 105.83};
     map = new google.maps.Map(
         mapDevice[0], {zoom: 10, center: hanoi});
 }
-
-// Su dung mapbox
-// mapboxgl.accessToken = 'pk.eyJ1Ijoic3VnYTA0MDQ5NiIsImEiOiJjazR3bWZmN3U0OGZyM2xxODYwdzRpdmtoIn0.pp2brYim_yIbSXEapFGjsg';
-// var map = new mapboxgl.Map({
-//     container: 'map_device',
-//     style: 'mapbox://styles/mapbox/streets-v11'
-// });
 
 let buttonDeviceReload = $("#button_device_reload");
 let buttonDeviceTest = $("#button_device_test");
@@ -69,7 +62,11 @@ buttonDeviceConfig.on("click",function(event){
 buttonDeviceReload.on("click",function(event){
     event.preventDefault();
     console.log("Button Reload clicked");
-    mqttClient.unsubscribe("fireValue/#");
+    subscribeTopic.forEach(topic => {
+        mqttClient.unsubscribe(topic,function(err){
+            console.log(err);
+        })
+    });
     formState = "None";
     let searchData = {};
     $.ajax({
@@ -81,7 +78,9 @@ buttonDeviceReload.on("click",function(event){
             deviceData = data;
             console.log(deviceData);
             data.forEach(device => {
-                mqttClient.subscribe("fireValue/"+device.deviceId);
+                let stringTopic = "fireValue/"+device.deviceId;
+                mqttClient.subscribe(stringTopic);
+                subscribeTopic.push(stringTopic);
                 tableDevice.append("<tr onclick=\"chooseDevice(this.id)\" id=\""+device.deviceId+"\"><td>"+device.deviceId+"</td><td>"+device.state+"</td><td id=\"fireValue_"+device.deviceId+"\"></td></tr>")
             });
         },
@@ -92,8 +91,6 @@ buttonDeviceReload.on("click",function(event){
 });
 
 function chooseDevice(deviceId){
-    console.log("Click");
-    console.log(deviceId);
     choosenDeviceId = deviceId;
     $.ajax({
         url: 'find_device',
@@ -117,7 +114,6 @@ function chooseDevice(deviceId){
 
 buttonDeviceTest.on("click",function(event){
     event.preventDefault();
-    console.log("Button Test clicked");
     formState = "None";
     if(choosenDeviceId!=""){
         $.ajax({
@@ -167,64 +163,46 @@ buttonSubmitDeviceForm.on("click",function(event){
 
 buttonGetDeviceLocation.on("click",function(event){
     event.preventDefault();
-    mqttClient.subscribe("configurationDevice/"+choosenDeviceId+"/coordinate");
-    let mqttMessage = new Paho.MQTT.Message(REQUEST_COORDINATION_CODE);
-    mqttMessage.destinationName = "configurationDevice/"+choosenDeviceId+"/request";
-    mqttClient.send(mqttMessage);
+    let stringTopic = "configurationDevice/"+choosenDeviceId+"/coordinate";
+    mqttClient.subscribe(stringTopic);
+    subscribeTopic.push(stringTopic);
+    mqttClient.publish("configurationDevice/"+choosenDeviceId+"/request",REQUEST_COORDINATION_CODE);
 });
 
 function startConnect() {
-    // Generate a random mqttClient ID
-    let clientID = "clientID-" + parseInt(Math.random() * 100);
-
-    // Initialize new Paho mqttClient connection
-    mqttClient = new Paho.MQTT.Client("127.0.0.1", Number("3030"), clientID);
-
-    // Set callback handlers
-    mqttClient.onConnectionLost = onConnectionLost;
-    mqttClient.onMessageArrived = onMessageArrived;
-
-    // Connect the mqttClient, if successful, call onConnect function
-    mqttClient.connect({ 
-        onSuccess: onConnect,
+    mqttClient = mqtt.connect("ws://127.0.0.1:3030",{
+        connectTimeout: 60000,
+        will: {
+            topic: 'connectionDevice',
+            payload: '0',
+            qos: 1,
+            retain: true
+        },
+        resubscribe: true
     });
-}
 
-function onConnect() {
-    console.log("Connected");
-}
-
-function onConnectionLost(responseObject) {
-    console.log("Connection Lost");
-}
-
-// Called when a message arrives
-function onMessageArrived(message) {
-    console.log("onMessageArrived: " + message.destinationName);
-    let splitDestinationName = message.destinationName.split('/');
-    let topicName = splitDestinationName[0];
-    if(topicName==="fireValue"){
-        let fireValueId = message.destinationName.replace('/','_');
-        $("#"+fireValueId).html(message.payloadString);
-    }else if(topicName==="configurationDevice"){
-        let deviceId = splitDestinationName[1];
-        let option = splitDestinationName[2];
-        if(option==="coordinate"){
-            if(choosenDeviceId===deviceId){
-                let deviceLat = Number.parseFloat(message.payloadString.split(":")[0]);
-                let deviceLon = Number.parseFloat(message.payloadString.split(":")[1]);
-                textviewDeviceLat.val(deviceLat);
-                textviewDeviceLon.val(deviceLon);
-                let deviceCoordinate = {lat: deviceLat, lng: deviceLon};
-                var marker = new google.maps.Marker({position: deviceCoordinate, map: map});
+    mqttClient.on("connect",function () {
+        console.log("Connected");
+    });
+    mqttClient.on("message",function(topic,message,packet){
+        let splitTopic = topic.split('/');
+        let topicName = splitTopic[0];
+        if(topicName==="fireValue"){
+            let fireValueId = topic.replace('/','_');
+            $("#"+fireValueId).html(message.toString());
+        }else if(topicName==="configurationDevice"){
+            let deviceId = splitTopic[1];
+            let option = splitTopic[2];
+            if(option==="coordinate"){
+                if(choosenDeviceId===deviceId){
+                    let deviceLat = Number.parseFloat(message.toString().split(":")[0]);
+                    let deviceLon = Number.parseFloat(message.toString().split(":")[1]);
+                    textviewDeviceLat.val(deviceLat);
+                    textviewDeviceLon.val(deviceLon);
+                    let deviceCoordinate = {lat: deviceLat, lng: deviceLon};
+                    let marker = new google.maps.Marker({position: deviceCoordinate, map: map});
+                }
             }
         }
-    }
-    
-}
-
-// Called when the disconnection button is pressed
-function startDisconnect() {
-    mqttClient.disconnect();
-    document.getElementById("messages").innerHTML += '<span>Disconnected</span><br/>';
+    });
 }
