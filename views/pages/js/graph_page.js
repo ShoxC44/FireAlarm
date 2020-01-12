@@ -102,6 +102,12 @@ function chooseDevice(deviceId){
                 textviewDeviceId.val(deviceId);
                 textviewDeviceLocation.val(device[0].location);
                 textviewDeviceNote.val(device[0].note);
+                if(device[0].lat!=undefined){
+                    textviewDeviceLat.val(device[0].lat);
+                }
+                if(device[0].lon!=undefined){
+                    textviewDeviceLon.val(device[0].lon);
+                }
             }else{
                alert("Device not exist in database");
             }
@@ -189,7 +195,8 @@ function startConnect() {
         let topicName = splitTopic[0];
         if(topicName==="fireValue"){
             let fireValueId = topic.replace('/','_');
-            $("#"+fireValueId).html(message.toString());
+            let fireValue = message.toString().split("_")[1];
+            $("#"+fireValueId).html(fireValue);
         }else if(topicName==="configurationDevice"){
             let deviceId = splitTopic[1];
             let option = splitTopic[2];

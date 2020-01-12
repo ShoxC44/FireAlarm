@@ -33,14 +33,6 @@ const session = require("express-session")({
 });
 app.use(session);
 
-//Khoi tao socket.io
-// const iosession = require("express-socket.io-session");
-
-// const io = require('socket.io')(server);
-// io.use(iosession(session,{
-// 	autoSave:true
-// }));
-
 //Khoi tao view engine thanh ejs
 const ejs = require("ejs");
 app.set("view engine","ejs");
@@ -155,7 +147,7 @@ app.post("/test_device",function(req,res){
         let testDeviceId = req.body.deviceId;
         database.findDeviceByDeviceId(testDeviceId,function(result){
             res.status(200);
-            return res.send(result.state);
+            return res.send(result[0].state);
         })
     }
 });
@@ -244,15 +236,6 @@ mqttServer.on("published",function(packet,client){
         }
     }
 });
-
-//Xu li tin hieu socket
-// io.on("connection",function(socket){
-//     let socketSession = socket.handshake.session;
-//     let user = socketSession.user;
-//     if(!user){
-//         socket.disconnect();
-//     }
-// });
 
 //Các hàm khi kết thúc chương trình
 process.on("SIGTERM", function () {
