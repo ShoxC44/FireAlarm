@@ -218,6 +218,7 @@ mqttServer.on("published",function(packet,client){
                     let deviceLocation = deviceData[1];
                     let deviceLat = deviceData[2];
                     let deviceLon = deviceData[3];
+                    let deviceHotline = deviceData[4];
                     let newDevice = {
                         deviceId: deviceId,
                         state: true,
@@ -226,11 +227,27 @@ mqttServer.on("published",function(packet,client){
                         lat: deviceLat,
                         lon: deviceLon,
                         pair:false,
-                        status: 0
+                        status: 0,
+                        hotline: deviceHotline
                     }
                     database.addDevice(newDevice,function(result){
                         if(result) console.log("Device "+deviceId+" added");
                     });
+                }
+            });
+        }
+    }else if(topicName==="configurationDevice"){
+        let option = topicSplited[2];
+        if(option==="coordinate"){
+            database.findDeviceByDeviceId(deviceId,function(result){
+                if(result[0]!=undefined){
+                    let device = result[0];
+                    let deviceCoordinate = data.toString().split(":");
+                    device.lat = Number.parseFloat(data[0]);
+                    device.lon = Number.parseFloat(data[1]);
+                    device.save();
+                }else{
+                    console.log("No device with id: " + deviceId);
                 }
             });
         }

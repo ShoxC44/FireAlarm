@@ -2,9 +2,13 @@ let mapDevice = $("#map_device");
 let mqttClient = "";
 let deviceData = [];
 let choosenDeviceId = "";
+let mqttHost = "ws://" + window.location.host;
 
 const REQUEST_COORDINATION_CODE = "1";
 let subscribeTopic = [];
+
+let googleLocationMarkerList = [];
+let googleAlartLocationMarkerList = [];
 
 $().ready(function() {
     $.ajax({
@@ -41,6 +45,7 @@ let textviewDeviceId = $("#device_id");
 let textviewDeviceNote = $("#device_note");
 let textviewDeviceLat = $("#device_lat");
 let textviewDeviceLon = $("#device_lon");
+let textviewDeviceHotline = $("#device_hotline");
 let formState = "None";
 
 buttonDeviceAdd.on("click",function(event){
@@ -102,6 +107,7 @@ function chooseDevice(deviceId){
                 textviewDeviceId.val(deviceId);
                 textviewDeviceLocation.val(device[0].location);
                 textviewDeviceNote.val(device[0].note);
+                textviewDeviceHotline.val(device[0].hotline);
                 if(device[0].lat!=undefined){
                     textviewDeviceLat.val(device[0].lat);
                 }
@@ -176,7 +182,7 @@ buttonGetDeviceLocation.on("click",function(event){
 });
 
 function startConnect() {
-    mqttClient = mqtt.connect("ws://127.0.0.1:3030",{
+    mqttClient = mqtt.connect(mqttHost,{
         connectTimeout: 60000,
         will: {
             topic: 'connectionDevice',
@@ -193,12 +199,51 @@ function startConnect() {
     mqttClient.on("message",function(topic,message,packet){
         let splitTopic = topic.split('/');
         let topicName = splitTopic[0];
+        let deviceId = splitTopic[1];
         if(topicName==="fireValue"){
             let fireValueId = topic.replace('/','_');
             let fireValue = message.toString().split("_")[1];
             $("#"+fireValueId).html(fireValue);
+            if(fireValue==1){
+                if(confirm("Device with id " + deviceId + " has fire alerted at level 1")){
+                    $.ajax({
+                        url: 'find_device',
+                        type: 'POST',
+                        data: {deviceId: deviceId},
+                        success: function (device) {
+                            console.log(device);
+                            if(device[0]!=undefined){
+                                textviewDeviceId.val(deviceId);
+                                textviewDeviceLocation.val(device[0].location);
+                                textviewDeviceNote.val(device[0].note);
+                                textviewDeviceHotline.val(device[0].hotline);
+                                if(device[0].lat!=undefined){
+                                    textviewDeviceLat.val(device[0].lat);
+                                }
+                                if(device[0].lon!=undefined){
+                                    textviewDeviceLon.val(device[0].lon);
+                                }
+                                if(device[0].lat!=undefined&&device[0].lon!=undefined){
+                                    let alertMarker = new google.maps.Marker({
+                                        position: new google.maps.LatLng(device[0].lat,device[0].lon),
+                                        title: "Location: " + device[0].location + " and hotline: " + device[0].hotline,
+                                        map: map
+                                    });
+                                    googleAlartLocationMarkerList.push(alertMarker);
+                                }
+                            }else{
+                               alert("Device not exist in database");
+                            }
+                        },
+                        error: function (e) {
+                            console.log(e.message);
+                        }
+                    });
+                }else{
+                    console.log("Cancel");
+                }
+            }
         }else if(topicName==="configurationDevice"){
-            let deviceId = splitTopic[1];
             let option = splitTopic[2];
             if(option==="coordinate"){
                 if(choosenDeviceId===deviceId){

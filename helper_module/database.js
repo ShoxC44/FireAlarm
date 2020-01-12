@@ -70,7 +70,8 @@ let deviceSchema = new Schema({
     lat: Schema.Types.Number,
     lon: Schema.Types.Number,
     pair: Schema.Types.Boolean,
-    status: Schema.Types.Number
+    status: Schema.Types.Number,
+    hotline: Schema.Types.String
 });
 
 let Device = databaseConnection.model('device',deviceSchema);
@@ -83,7 +84,8 @@ exports.addDevice = function(deviceData,callback){
                             lat: deviceData.lat,
                             lon: deviceData.lon,
                             pair: deviceData.pair,
-                            status: deviceData.status});
+                            status: deviceData.status,
+                            hotline: deviceData.hotline});
     device.save(function(err){
         if(err){
             console.log(err);

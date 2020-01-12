@@ -40,7 +40,8 @@ let deviceSchema = new Schema({
     lat: Schema.Types.Number,
     lon: Schema.Types.Number,
     pair: Schema.Types.Boolean,
-    status: Schema.Types.Number
+    status: Schema.Types.Number,
+    hotline: Schema.Types.String
 });
 
 let Device = databaseConnection.model('device',deviceSchema);
