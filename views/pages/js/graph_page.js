@@ -8,7 +8,8 @@ const REQUEST_COORDINATION_CODE = "1";
 let subscribeTopic = [];
 
 let googleLocationMarkerList = [];
-let googleAlartLocationMarkerList = [];
+let alertLocationList = [];
+let googleAlertLocationMarkerList = [];
 
 $().ready(function() {
     $.ajax({
@@ -86,7 +87,7 @@ buttonDeviceReload.on("click",function(event){
                 let stringTopic = "fireValue/"+device.deviceId;
                 mqttClient.subscribe(stringTopic);
                 subscribeTopic.push(stringTopic);
-                tableDevice.append("<tr onclick=\"chooseDevice(this.id)\" id=\""+device.deviceId+"\"><td>"+device.deviceId+"</td><td>"+device.state+"</td><td id=\"fireValue_"+device.deviceId+"\"></td></tr>")
+                tableDevice.append("<tr onclick=\"chooseDevice(this.id)\" id=\""+device.deviceId+"\"><td>"+device.deviceId+"</td><td>"+device.state+"</td><td id=\"fireValue_"+device.deviceId+"\">"+device.status+"</td></tr>")
             });
         },
         error: function (e) {
@@ -229,7 +230,47 @@ function startConnect() {
                                         title: "Location: " + device[0].location + " and hotline: " + device[0].hotline,
                                         map: map
                                     });
-                                    googleAlartLocationMarkerList.push(alertMarker);
+                                    googleAlertLocationMarkerList.push(alertMarker);
+                                    googleLocationMarkerList.push(device);
+                                }
+                            }else{
+                               alert("Device not exist in database");
+                            }
+                        },
+                        error: function (e) {
+                            console.log(e.message);
+                        }
+                    });
+                }else{
+                    console.log("Cancel");
+                }
+            }else if(fireValue==2){
+                if(confirm("Device with id " + deviceId + " has fire alerted at level 2")){
+                    $.ajax({
+                        url: 'find_device',
+                        type: 'POST',
+                        data: {deviceId: deviceId},
+                        success: function (device) {
+                            console.log(device);
+                            if(device[0]!=undefined){
+                                textviewDeviceId.val(deviceId);
+                                textviewDeviceLocation.val(device[0].location);
+                                textviewDeviceNote.val(device[0].note);
+                                textviewDeviceHotline.val(device[0].hotline);
+                                if(device[0].lat!=undefined){
+                                    textviewDeviceLat.val(device[0].lat);
+                                }
+                                if(device[0].lon!=undefined){
+                                    textviewDeviceLon.val(device[0].lon);
+                                }
+                                if(device[0].lat!=undefined&&device[0].lon!=undefined){
+                                    let alertMarker = new google.maps.Marker({
+                                        position: new google.maps.LatLng(device[0].lat,device[0].lon),
+                                        title: "Location: " + device[0].location + " and hotline: " + device[0].hotline,
+                                        map: map
+                                    });
+                                    googleAlertLocationMarkerList.push(alertMarker);
+                                    googleLocationMarkerList.push(device);
                                 }
                             }else{
                                alert("Device not exist in database");
